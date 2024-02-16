@@ -16,6 +16,10 @@ public class GameManager : MonoBehaviour
     [Header("SpawnDuration")]
     [SerializeField] private float minSpawnDuration = 2;
     [SerializeField] private float maxSpawnDuration = 6;
+
+    [Header("SpawnPoints")]
+    [SerializeField] private Transform topLeftSpawnPoint;
+    [SerializeField] private Transform bottomRightSpawnPoint;
     
     private GameObjectPool _agentPool;
     private int _agentsCount;//test
@@ -55,7 +59,19 @@ public class GameManager : MonoBehaviour
     {
         _agentsCount++;
         GameObject newAgent = _agentPool.Get();
-        //Set agent position
+        newAgent.transform.position = CalculateAgentPos();
+    }
+
+    private Vector3 CalculateAgentPos()
+    {
+        Vector3 topLeftPos = topLeftSpawnPoint.position;
+        Vector3 bottomRightPos = bottomRightSpawnPoint.position;
+        
+        float x = Random.Range(topLeftPos.x, bottomRightPos.x);
+        float y = 1.5f;
+        float z = Random.Range(bottomRightPos.z, topLeftPos.z);
+        //check the distance to the nearest agent
+        return new Vector3(x, y, z);
     }
 
     private IEnumerator AgentSpawner()
