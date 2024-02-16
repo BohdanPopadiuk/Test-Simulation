@@ -115,6 +115,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Health>k__BackingField: 3
   outline: {fileID: 8842667680274553154}
+  names: {fileID: 11400000, guid: bdd9fc4ea2a2c1042a79f8fd0ded3f4e, type: 2}
 --- !u!54 &4249039106676484493
 Rigidbody:
   m_ObjectHideFlags: 0

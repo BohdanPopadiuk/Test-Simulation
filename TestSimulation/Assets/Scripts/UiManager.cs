@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class UiManager : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI agentHealthText;
+    [SerializeField] private TextMeshProUGUI agentInfoText;
     void Awake()
     {
         AgentController.UpdateAgentStatus += UpdateCanvas;
@@ -16,6 +16,6 @@ public class UiManager : MonoBehaviour
 
     void UpdateCanvas(AgentController agentController)
     {
-        agentHealthText.text = agentController.Selected ? $"HP: {agentController.Health}" : "";
+        agentInfoText.text = agentController.Selected ? $"{agentController.Name}<br>HP: {agentController.Health}" : "";
     }
 }
