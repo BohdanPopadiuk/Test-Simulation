@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using ObjectPool;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -8,9 +9,12 @@ public class GameManager : MonoBehaviour
 {
     public static Action<AgentController> AgentDied;
     [SerializeField] private AgentController agentPrefab;
+
+    [SerializeField] private float minSpawnDistanceToAgent = 2.5f;
     
     [Header("Agents Count")]
-    [SerializeField] private int agentsCountAtStart = 3;
+    [SerializeField] private int minAgentsCountAtStart = 3;
+    [SerializeField] private int maxAgentsCountAtStart = 5;
     [SerializeField] private int maxAgentsCount = 30;
     
     [Header("SpawnDuration")]
@@ -22,13 +26,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform bottomRightSpawnPoint;
     
     private GameObjectPool _agentPool;
-    private int _agentsCount;//test
+    private readonly List<GameObject> _activeAgents = new List<GameObject>();
 
     void Awake()
     {
         _agentPool = new GameObjectPool(agentPrefab.gameObject, 30);
         AgentDied += ReturnAgentToPool;
 
+        int agentsCountAtStart = Random.Range(minAgentsCountAtStart, maxAgentsCountAtStart + 1);
         for (int i = 0; i < agentsCountAtStart; i++)
         {
             AgentSpawn();
@@ -45,10 +50,11 @@ public class GameManager : MonoBehaviour
 
     private void ReturnAgentToPool(AgentController agentController)
     {
-        _agentPool.Return(agentController.gameObject);
-        _agentsCount--;
-
-        if (_agentsCount >= maxAgentsCount - 1)
+        GameObject agent = agentController.gameObject;
+        _activeAgents.Remove(agent);
+        _agentPool.Return(agent);
+        
+        if (_activeAgents.Count >= maxAgentsCount - 1)
         {
             Debug.Log("Start spawner (return)");
             StartCoroutine(AgentSpawner());
@@ -57,26 +63,43 @@ public class GameManager : MonoBehaviour
 
     private void AgentSpawn()
     {
-        _agentsCount++;
         GameObject newAgent = _agentPool.Get();
         newAgent.transform.position = CalculateAgentPos();
+        _activeAgents.Add(newAgent);
     }
 
     private Vector3 CalculateAgentPos()
     {
-        Vector3 topLeftPos = topLeftSpawnPoint.position;
-        Vector3 bottomRightPos = bottomRightSpawnPoint.position;
+        Vector3 newPos = new Vector3();
+        bool posCalculated = false;
         
-        float x = Random.Range(topLeftPos.x, bottomRightPos.x);
-        float y = 1.5f;
-        float z = Random.Range(bottomRightPos.z, topLeftPos.z);
-        //check the distance to the nearest agent
-        return new Vector3(x, y, z);
+        while (!posCalculated)
+        {
+            Vector3 topLeftPos = topLeftSpawnPoint.position;
+            Vector3 bottomRightPos = bottomRightSpawnPoint.position;
+        
+            newPos.x = Random.Range(topLeftPos.x, bottomRightPos.x);
+            newPos.y = 1.5f;
+            newPos.z = Random.Range(bottomRightPos.z, topLeftPos.z);
+
+            posCalculated = true;
+            
+            foreach (GameObject agent in _activeAgents)
+            {
+                float distanceToAgent = Vector3.Distance(agent.transform.position, newPos);
+                if (distanceToAgent < minSpawnDistanceToAgent)
+                {
+                    posCalculated = false;
+                    break;
+                }
+            }
+        }
+        return newPos;
     }
 
     private IEnumerator AgentSpawner()
     {
-        while (_agentsCount < maxAgentsCount)
+        while (_activeAgents.Count < maxAgentsCount)
         {
             float randomDuration = Random.Range(minSpawnDuration, maxSpawnDuration);
             yield return new WaitForSeconds(randomDuration);
