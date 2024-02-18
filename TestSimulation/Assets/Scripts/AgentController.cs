@@ -7,7 +7,7 @@ public class AgentController: MonoBehaviour
     public static Action<AgentController> UpdateAgentStatus;
     [field: SerializeField] public int Health { get; private set; } = 3;
     [SerializeField] private Rigidbody rb;
-    [SerializeField] private GameObject outline;//test
+    [SerializeField] private Outline outline;
     [SerializeField] private NameData names;
     [SerializeField] private float moveSpeed = 5;
     [SerializeField] private float turnSpeed = 1;
@@ -85,7 +85,7 @@ public class AgentController: MonoBehaviour
         if (Selected)
         {
             Selected = false;
-            outline.SetActive(false);
+            outline.enabled = false;
             UpdateAgentStatus?.Invoke(this);
         }
 
@@ -95,7 +95,7 @@ public class AgentController: MonoBehaviour
     public void OnAgentClick()
     {
         Selected = !Selected;
-        outline.SetActive(Selected);
+        outline.enabled = Selected;
         UpdateAgentStatus?.Invoke(this);
     }
 
@@ -104,7 +104,7 @@ public class AgentController: MonoBehaviour
         if (agentController != this)
         {
             Selected = false;
-            outline.SetActive(false);
+            outline.enabled = false;
         }
     }
 }

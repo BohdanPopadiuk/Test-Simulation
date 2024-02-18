@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4007501548226458903}
   - component: {fileID: 629150043641596544}
   - component: {fileID: 4249039106676484493}
+  - component: {fileID: 5137106405655411787}
   m_Layer: 3
   m_Name: Agent
   m_TagString: Agent
@@ -65,7 +66,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Health>k__BackingField: 3
   rb: {fileID: 4249039106676484493}
-  outline: {fileID: 8842667680274553154}
+  outline: {fileID: 5137106405655411787}
   names: {fileID: 11400000, guid: bdd9fc4ea2a2c1042a79f8fd0ded3f4e, type: 2}
   moveSpeed: 2
   turnSpeed: 5
@@ -86,6 +87,24 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &5137106405655411787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7143485330276419444}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 1
+  outlineColor: {r: 0.96981126, g: 0.9310217, b: 0.83257383, a: 1}
+  outlineWidth: 10
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &8842667680274553154
 GameObject:
   m_ObjectHideFlags: 0
