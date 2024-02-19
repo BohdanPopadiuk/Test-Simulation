@@ -15,12 +15,18 @@ public class AgentController: MonoBehaviour
     [SerializeField] private float turnSpeed = 1;
     [SerializeField] private float animDuration = 1;
     [SerializeField] private ParticleSystem sparksParticles;
+    [SerializeField] private ParticleSystem particlesOfDestruction;
     [SerializeField] private Ease scaleEase = Ease.InOutBack;
     private Vector3 _moveDirection;
     public bool Selected { get; private set; }
     public string Name { get; private set; }
     private int _defaultHealth;
     private bool _canMove;
+    
+    private Quaternion TargetRotation =>
+        Quaternion.LookRotation(_moveDirection.normalized, Vector3.up);
+    private Vector3 RandomDirection => 
+        new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
 
     private Vector3 _defaultScale; 
 
@@ -34,19 +40,21 @@ public class AgentController: MonoBehaviour
     {
         if (_canMove)
         {
-            _moveDirection = _moveDirection.normalized;
+            //move
             rb.velocity = _moveDirection.normalized * moveSpeed;
-            Quaternion toRotation = Quaternion.LookRotation(_moveDirection, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, turnSpeed * Time.deltaTime);   
+            //turn
+            transform.rotation = Quaternion.Slerp(transform.rotation, TargetRotation, turnSpeed * Time.deltaTime);
         }
     }
 
     private void OnEnable()
     {
         SpawnAnimation();
-        _moveDirection = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
+        _moveDirection = RandomDirection;
+        transform.rotation = TargetRotation;
         Name = names.GenerateName();
         Health = _defaultHealth;
+
         
         //Subscriptions
         UpdateAgentStatus += DeselectAgent;
@@ -104,6 +112,8 @@ public class AgentController: MonoBehaviour
         col.enabled = false;
         rb.useGravity = false;
         _canMove = false;
+        
+        particlesOfDestruction.Play();
         
         transform.DOScale(0, animDuration)
             .SetEase(scaleEase)
