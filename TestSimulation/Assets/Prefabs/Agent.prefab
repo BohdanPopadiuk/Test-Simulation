@@ -71,7 +71,7 @@ MonoBehaviour:
   names: {fileID: 11400000, guid: bdd9fc4ea2a2c1042a79f8fd0ded3f4e, type: 2}
   moveSpeed: 2
   turnSpeed: 5
-  animDuration: 0.5
+  animDuration: 0.4
   sparksParticles: {fileID: 6768543000157949985}
   particlesOfDestruction: {fileID: 950845548290905276}
   scaleEase: 28

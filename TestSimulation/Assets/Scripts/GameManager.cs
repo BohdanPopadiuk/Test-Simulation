@@ -13,9 +13,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float minSpawnDistanceToAgent = 2.5f;
     
     [Header("Agents Count")]
-    [SerializeField] private int minAgentsCountAtStart = 3;
-    [SerializeField] private int maxAgentsCountAtStart = 5;
-    [SerializeField] private int maxAgentsCount = 30;
+    [SerializeField, Min(1)] private int minAgentsCountAtStart = 3;
+    [SerializeField, Min(1)] private int maxAgentsCountAtStart = 5;
+    [SerializeField, Min(1)] private int maxAgentsCount = 30;
     
     [Header("SpawnDuration")]
     [SerializeField] private float minSpawnDuration = 2;

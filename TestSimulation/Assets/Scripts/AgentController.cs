@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 public class AgentController: MonoBehaviour
 {
     public static Action<AgentController> UpdateAgentStatus;
-    [field: SerializeField] public int Health { get; private set; } = 3;
+    [field: SerializeField, Min(1)] public int Health { get; private set; } = 3;
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Collider col;
     [SerializeField] private Outline outline;
@@ -22,13 +22,13 @@ public class AgentController: MonoBehaviour
     public string Name { get; private set; }
     private int _defaultHealth;
     private bool _canMove;
+
+    private Vector3 _defaultScale; 
     
     private Quaternion TargetRotation =>
         Quaternion.LookRotation(_moveDirection.normalized, Vector3.up);
     private Vector3 RandomDirection => 
         new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
-
-    private Vector3 _defaultScale; 
 
     private void Awake()
     {

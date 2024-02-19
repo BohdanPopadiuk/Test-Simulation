@@ -1,11 +1,16 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UiManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI agentInfoText;
-    void Awake()
+    [SerializeField] private TextMeshProUGUI generatedText;
+
+    [SerializeField] private Button generateTextButton;
+    private void Awake()
     {
+        generateTextButton.onClick.AddListener(GenerateText);
         AgentController.UpdateAgentStatus += UpdateCanvas;
     }
 
@@ -14,8 +19,20 @@ public class UiManager : MonoBehaviour
         AgentController.UpdateAgentStatus -= UpdateCanvas;
     }
 
-    void UpdateCanvas(AgentController agentController)
+    private void UpdateCanvas(AgentController agentController)
     {
-        agentInfoText.text = agentController.Selected ? $"{agentController.Name}<br>HP: {agentController.Health}" : "";
+        string agentInfo = $"{agentController.Name}<br>HP: {agentController.Health}";
+        agentInfoText.text = agentController.Selected ? agentInfo : "";
     }
+
+    private void GenerateText()
+    {
+        int randomNumber = Random.Range(1, 101);
+
+        string firstPart = randomNumber % 3 == 0 ? "Marko" : "";
+        string secondPart = randomNumber % 5 == 0 ? "Polo" : "";
+
+        generatedText.text = $"{randomNumber}<br>{firstPart + secondPart}";
+    }
+    
 }
