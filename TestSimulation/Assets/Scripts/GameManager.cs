@@ -7,56 +7,80 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
+    #region Variables
+    
     public static Action<AgentController> AgentDied;
     [SerializeField] private AgentController agentPrefab;
 
-    [SerializeField] private float minSpawnDistanceToAgent = 2.5f;
+    [SerializeField, Min(0)] private float minSpawnDistanceToAgent = 2.5f;
     
     [Header("Agents Count")]
     [SerializeField, Min(1)] private int minAgentsCountAtStart = 3;
     [SerializeField, Min(1)] private int maxAgentsCountAtStart = 5;
     [SerializeField, Min(1)] private int maxAgentsCount = 30;
     
-    [Header("SpawnDuration")]
+    [Header("Spawn Duration")]
     [SerializeField] private float minSpawnDuration = 2;
     [SerializeField] private float maxSpawnDuration = 6;
 
-    [Header("SpawnPoints")]
+    [Header("Spawn Points")]
     [SerializeField] private Transform topLeftSpawnPoint;
     [SerializeField] private Transform bottomRightSpawnPoint;
     
-    private GameObjectPool _agentPool;
     private readonly List<GameObject> _activeAgents = new List<GameObject>();
+    private GameObjectPool _agentPool;
 
-    void Awake()
+    #endregion
+
+    #region MonoBehaviour methods
+
+    private void Awake()
     {
-        _agentPool = new GameObjectPool(agentPrefab.gameObject, 30);
+        //Subscriptions
         AgentDied += ReturnAgentToPool;
+        
+        //pool initialization
+        _agentPool = new GameObjectPool(agentPrefab.gameObject, 30);
 
+        //spawn first agents
         int agentsCountAtStart = Random.Range(minAgentsCountAtStart, maxAgentsCountAtStart + 1);
         for (int i = 0; i < agentsCountAtStart; i++)
         {
             AgentSpawn();
         }
         
-        Debug.Log("Start spawner");
+        //start spawner
         StartCoroutine(AgentSpawner());
     }
 
     private void OnDestroy()
     {
+        //Unsubscribes
         AgentDied -= ReturnAgentToPool;
     }
 
+    private void OnValidate()
+    {
+        if (minAgentsCountAtStart > maxAgentsCountAtStart)
+        {
+            maxAgentsCountAtStart = minAgentsCountAtStart;
+        }
+    }
+
+    #endregion
+
+    #region Private methods
+
     private void ReturnAgentToPool(AgentController agentController)
     {
+        //return died agents to object pool
         GameObject agent = agentController.gameObject;
         _activeAgents.Remove(agent);
         _agentPool.Return(agent);
         
+        //start spawner
         if (_activeAgents.Count >= maxAgentsCount - 1)
         {
-            Debug.Log("Start spawner (return)");
             StartCoroutine(AgentSpawner());
         }
     }
@@ -70,6 +94,7 @@ public class GameManager : MonoBehaviour
 
     private Vector3 CalculateAgentPos()
     {
+        //search for free space on the plane in the given range
         Vector3 newPos = new Vector3();
         bool posCalculated = false;
         
@@ -97,6 +122,10 @@ public class GameManager : MonoBehaviour
         return newPos;
     }
 
+    #endregion
+
+    #region Coroutines
+
     private IEnumerator AgentSpawner()
     {
         while (_activeAgents.Count < maxAgentsCount)
@@ -105,6 +134,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(randomDuration);
             AgentSpawn();
         }
-        Debug.Log("Stop spawner");
     }
+
+    #endregion
 }

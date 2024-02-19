@@ -1,9 +1,9 @@
+using Interfaces;
 using UnityEngine;
 
 public class InputHandler : MonoBehaviour
 {
     [SerializeField] private LayerMask agentMask;
-
     private Camera _camera;
 
     private void Start()
@@ -11,14 +11,14 @@ public class InputHandler : MonoBehaviour
         _camera = Camera.main;
     }
 
-    void Update()
+    private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, agentMask))
             {
-                hitInfo.collider.GetComponent<AgentController>()?.OnAgentClick();
+                hitInfo.collider.GetComponent<IClickable>()?.OnMouseClick();
             }
         }
     }

@@ -13,7 +13,6 @@ namespace ObjectPool
 
         #endregion
         
-
         #region public Methods
 
         public static GameObject Preload(GameObject prefab) => Object.Instantiate(prefab);

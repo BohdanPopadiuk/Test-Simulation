@@ -1,34 +1,47 @@
 ﻿using UnityEngine;
 using System;
 using DG.Tweening;
+using Interfaces;
+using ScriptableObjects;
 using Random = UnityEngine.Random;
 
-public class AgentController: MonoBehaviour
+public class AgentController: MonoBehaviour, IClickable
 {
+    #region Variables
+
     public static Action<AgentController> UpdateAgentStatus;
-    [field: SerializeField, Min(1)] public int Health { get; private set; } = 3;
+    
+    public bool Selected { get; private set; }
+    public string Name { get; private set; }
+    
+    [field: SerializeField, Min(1), Header("Parameters")] public int Health { get; private set; } = 3;
+    
+    [SerializeField] private float moveSpeed = 5;
+    [SerializeField] private float turnSpeed = 1;
+    [SerializeField] private float animDuration = 1;
+    
+    [SerializeField] private Ease scaleEase = Ease.InOutBack;
+    
+    [Header("Components")]
+    [SerializeField] private ParticleSystem particlesOfDestruction;
+    [SerializeField] private ParticleSystem sparksParticles;
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Collider col;
     [SerializeField] private Outline outline;
     [SerializeField] private NameData names;
-    [SerializeField] private float moveSpeed = 5;
-    [SerializeField] private float turnSpeed = 1;
-    [SerializeField] private float animDuration = 1;
-    [SerializeField] private ParticleSystem sparksParticles;
-    [SerializeField] private ParticleSystem particlesOfDestruction;
-    [SerializeField] private Ease scaleEase = Ease.InOutBack;
-    private Vector3 _moveDirection;
-    public bool Selected { get; private set; }
-    public string Name { get; private set; }
-    private int _defaultHealth;
+      
     private bool _canMove;
-
-    private Vector3 _defaultScale; 
+    private int _defaultHealth;
     
-    private Quaternion TargetRotation =>
-        Quaternion.LookRotation(_moveDirection.normalized, Vector3.up);
-    private Vector3 RandomDirection => 
-        new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
+    private Vector3 _moveDirection;
+    private Vector3 _defaultScale;   
+
+    private Vector3 RandomDirection => new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
+    private Quaternion TargetRotation => Quaternion.LookRotation(_moveDirection.normalized, Vector3.up);
+
+    #endregion
+
+    #region MonoBehaviour methods
 
     private void Awake()
     {
@@ -36,26 +49,24 @@ public class AgentController: MonoBehaviour
         _defaultScale = transform.localScale;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if (_canMove)
+        if (_canMove)//move && turn
         {
-            //move
             rb.velocity = _moveDirection.normalized * moveSpeed;
-            //turn
-            transform.rotation = Quaternion.Slerp(transform.rotation, TargetRotation, turnSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, TargetRotation, turnSpeed);
         }
     }
 
     private void OnEnable()
     {
+        //new agent initialization
         SpawnAnimation();
         _moveDirection = RandomDirection;
         transform.rotation = TargetRotation;
         Name = names.GenerateName();
         Health = _defaultHealth;
 
-        
         //Subscriptions
         UpdateAgentStatus += DeselectAgent;
     }
@@ -70,21 +81,23 @@ public class AgentController: MonoBehaviour
     {
         GameObject collisionObject = collision.gameObject;
         
+        //reflect & damage
         if (collisionObject.CompareTag(gameObject.tag))
         {
             _moveDirection *= -1;
             TakeDamage();
         }
 
+        //reflect
         if (collisionObject.CompareTag("Border"))
         {
             Vector3 normal = collision.contacts[0].normal;
             _moveDirection = Vector3.Reflect(_moveDirection, normal);
         }
-
+        
+        //sparks particles
         if (!collisionObject.CompareTag("Ground"))
         {
-            //particles
             Vector3 newSparksPos = collision.contacts[0].point;
             Transform sparksTransform = sparksParticles.transform;
             sparksTransform.position = new Vector3(newSparksPos.x, sparksTransform.position.y, newSparksPos.z);
@@ -92,6 +105,10 @@ public class AgentController: MonoBehaviour
             sparksParticles.Play();
         }
     }
+
+    #endregion
+
+    #region private methods
 
     private void TakeDamage()
     {
@@ -119,6 +136,7 @@ public class AgentController: MonoBehaviour
             .SetEase(scaleEase)
             .OnComplete(() =>
             {
+                //return to object pool
                 GameManager.AgentDied?.Invoke(this);
             });
     }
@@ -136,7 +154,7 @@ public class AgentController: MonoBehaviour
             });
     }
 
-    public void OnAgentClick()
+    private void OnAgentClick()
     {
         Selected = !Selected;
         outline.enabled = Selected;
@@ -145,10 +163,22 @@ public class AgentController: MonoBehaviour
 
     private void DeselectAgent(AgentController agentController)
     {
+        //disable the "selected" status when choosing another agent
         if (agentController != this)
         {
             Selected = false;
             outline.enabled = false;
         }
     }
+
+    #endregion
+
+    #region interface implementation
+
+    public void OnMouseClick()
+    {
+        OnAgentClick();
+    }
+
+    #endregion
 }

@@ -10,8 +10,9 @@ public class UiManager : MonoBehaviour
     [SerializeField] private Button generateTextButton;
     private void Awake()
     {
-        generateTextButton.onClick.AddListener(GenerateText);
         AgentController.UpdateAgentStatus += UpdateCanvas;
+        
+        generateTextButton.onClick.AddListener(GenerateText);
     }
 
     private void OnDestroy()
