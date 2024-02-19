@@ -66,11 +66,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Health>k__BackingField: 3
   rb: {fileID: 4249039106676484493}
+  col: {fileID: 4007501548226458903}
   outline: {fileID: 5137106405655411787}
   names: {fileID: 11400000, guid: bdd9fc4ea2a2c1042a79f8fd0ded3f4e, type: 2}
   moveSpeed: 2
   turnSpeed: 5
+  animDuration: 0.5
   sparksParticles: {fileID: 6768543000157949985}
+  scaleEase: 28
 --- !u!54 &4249039106676484493
 Rigidbody:
   m_ObjectHideFlags: 0
